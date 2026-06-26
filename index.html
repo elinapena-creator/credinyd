@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrediNYD — Sistema de Créditos</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #2c2c2c;
+            --blue: #3d3d3d;
+            --accent: #8a7560;
+            --accent-light: #b09e88;
+            --success: #5a6e4e;
+            --danger: #b04a4a;
+            --warning: #c49a3c;
+            --bg: #f2ede8;
+            --surface: #ffffff;
+            --surface2: #f7f3ef;
+            --border: #ddd5c8;
+            --text: #2c2c2c;
+            --text-muted: #7a7069;
+            --font: 'IBM Plex Sans', sans-serif;
+            --mono: 'IBM Plex Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── LOGIN ── */
+        #loginScreen {
+            min-height: 100vh;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-top: 4px solid var(--accent);
+        }
+
+        .login-logo {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .login-brand {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .login-brand span { color: var(--accent); }
+
+        .login-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        #loginError {
+            background: #fde8e8;
+            color: var(--danger);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* ── APP SHELL ── */
+        #appScreen { display: none; }
+
+        .topbar {
+            background: var(--navy);
+            color: white;
+            padding: 0 24px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-brand-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        .topbar-brand-name span { color: var(--accent-light); }
+
+        .topbar-tag {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            color: #d4c4b0;
+            background: rgba(138,117,96,0.25);
+            border: 1px solid rgba(138,117,96,0.4);
+            border-radius: 4px;
+            padding: 2px 7px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-pill {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            color: #d4c4b0;
+        }
+
+        .main-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 28px 20px;
+        }
+
+        /* ── MODO EDICION ── */
+        .edit-banner {
+            background: #fdf8ee;
+            border: 1px solid #e8d5a0;
+            border-left: 4px solid var(--warning);
+            border-radius: 8px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* ── CARDS ── */
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(44,44,44,0.06);
+        }
+
+        /* ── FORMS ── */
+        .form-group { margin-bottom: 16px; }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            font-family: var(--font);
+            font-size: 0.92rem;
+            color: var(--text);
+            background: var(--surface);
+            transition: border-color 0.15s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(138,117,96,0.12);
+        }
+
+        .date-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .calc-result {
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-family: var(--mono);
+            margin-top: 5px;
+        }
+
+        /* ── DESCUENTOS ── */
+        .descuento-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .descuento-block h4 {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+
+        .descuento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .total-bar {
+            background: var(--navy);
+            color: white;
+            border-radius: 8px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            font-weight: 600;
+        }
+
+        .total-bar span {
+            font-family: var(--mono);
+            font-size: 1.2rem;
+            color: var(--accent-light);
+        }
+
+        /* ── BOTONES ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #75624f; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #485c3d; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #943d3d; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { background: var(--surface2); }
+        .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+        .btn-wa { background: #25D366; color: white; }
+        .btn-wa:hover { background: #128C7E; }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 28px 0 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn-delete-block {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* ── TABLA ── */
+        .db-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .db-count {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 14px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: flex-end;
+        }
+
+        .search-bar .sf { flex: 1; min-width: 220px; }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(44,44,44,0.06);
+        }
+
+        table { width: 100%; border-collapse: collapse; background: white; }
+
+        thead th {
+            background: var(--navy);
+            color: white;
+            padding: 12px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            vertical-align: top;
+        }
+
+        tbody tr:hover { background: #f7f2ec; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin: 2px 2px 2px 0;
+        }
+
+        .badge-compra { background: #ede8e0; color: #5a4a38; border: 1px solid #c4b49e; }
+        .badge-refi { background: #e8e4de; color: #4a3f32; border: 1px solid #b8aa98; }
+        .badge-none { color: #94a3b8; font-size: 0.75rem; }
+
+        .credit-list { font-size: 0.78rem; line-height: 1.6; padding-left: 14px; }
+
+        /* ── LOADING ── */
+        .loading-overlay {
+            position: fixed; inset: 0;
+            background: rgba(44,44,44,0.7);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: var(--accent-light);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .sync-indicator {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state p { font-size: 0.9rem; margin-top: 8px; }
+
+        @media (max-width: 600px) {
+            .login-box { padding: 32px 24px; }
+            .main-content { padding: 16px 12px; }
+            .card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <span style="color:white; font-size:0.85rem; font-family:'IBM Plex Mono',monospace;">Cargando...</span>
+</div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="loginScreen">
+    <div class="login-box">
+        <div class="login-logo">Sistema de Créditos</div>
+        <div class="login-brand">Credi<span>NYD</span></div>
+        <div class="login-sub">Inicia sesión para acceder al sistema</div>
+        <div id="loginError"></div>
+        <div class="form-group">
+            <label for="loginEmail">Correo electrónico</label>
+            <input type="email" id="loginEmail" placeholder="usuario@correo.com">
+        </div>
+        <div class="form-group" style="margin-bottom:24px;">
+            <label for="loginPass">Contraseña</label>
+            <input type="password" id="loginPass" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary" id="btnLogin" style="width:100%; justify-content:center; padding:12px; font-size:1rem;">
+            Entrar al Sistema
+        </button>
+    </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="appScreen">
+
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="topbar-brand-name">Credi<span>NYD</span></div>
+            <div class="topbar-tag">SISTEMA</div>
+        </div>
+        <div class="topbar-right">
+            <div class="sync-indicator">
+                <div class="sync-dot"></div>
+                EN LÍNEA
+            </div>
+            <div class="user-pill" id="userEmail">—</div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" style="color:white; border-color:rgba(255,255,255,0.2);">Salir</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <!-- Banner edición -->
+        <div class="edit-banner" id="editBanner">
+            ⚠️ <strong>Modo edición activo:</strong> Modificando cliente con RFC <strong id="rfcEditando"></strong>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form id="creditoForm">
+            <div class="grid-2">
+                <!-- Datos Generales -->
+                <div class="card">
+                    <div class="section-title">Datos Generales</div>
+                    <div class="form-group">
+                        <label>Dependencia</label>
+                        <select id="dependencia" required>
+                            <option value="">Seleccione...</option>
+                            <option value="SNTE 18">SNTE 18</option>
+                            <option value="Gob Mich">Gob Mich</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Capacidad ($)</label>
+                        <input type="number" id="capacidad" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Promotor</label>
+                        <input type="text" id="promotor" required>
+                    </div>
+                </div>
+
+                <!-- Datos del Cliente -->
+                <div class="card">
+                    <div class="section-title">Datos del Cliente</div>
+                    <div class="form-group">
+                        <label>Número de Empleado</label>
+                        <input type="text" id="numEmpleado" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="telefono" placeholder="Ej: 4431234567" required>
+                        <a id="waBtn" href="#" target="_blank" class="btn btn-wa btn-sm" style="display:none; margin-top:8px;">WhatsApp</a>
+                    </div>
+                    <div class="grid-2" style="grid-template-columns:1fr 1fr; gap:10px; margin-bottom:0;">
+                        <div class="form-group">
+                            <label>RFC</label>
+                            <input type="text" id="rfc" style="text-transform:uppercase;" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CURP</label>
+                            <input type="text" id="curp" style="text-transform:uppercase;" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Nacimiento</label>
+                        <div class="date-row">
+                            <input type="number" id="nacAnio" placeholder="Año" min="1930" max="2026">
+                            <input type="number" id="nacMes" placeholder="Mes" min="1" max="12">
+                            <input type="number" id="nacDia" placeholder="Día" min="1" max="31">
+                        </div>
+                        <div id="edadCalculada" class="calc-result">Edad: --</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Ingreso</label>
+                        <div class="date-row">
+                            <input type="number" id="ingAnio" placeholder="Año" min="1950" max="2026">
+                            <input type="number" id="ingMes" placeholder="Mes" min="1" max="12">
+                            <input type="number" id="ingDia" placeholder="Día" min="1" max="31">
+                        </div>
+                        <div id="servicioCalculado" class="calc-result">Antigüedad: --</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descuentos -->
+            <div class="card" style="margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <div class="section-title" style="margin-bottom:0;">Descuentos por Financiera</div>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnAgregarDescuento">+ Agregar</button>
+                </div>
+                <div id="contenedorDescuentos"></div>
+                <div class="total-bar">
+                    <span style="font-size:0.85rem; font-weight:400; opacity:0.7; color:white;">Total Descuentos Quincenales</span>
+                    <span>$<span id="totalDescuentos">0.00</span></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success" id="btnGuardar" style="font-size:1rem; padding:12px 36px;">
+                    Guardar Contacto
+                </button>
+                <button type="button" class="btn btn-ghost" id="btnCancelarEdicion" style="display:none; font-size:1rem; padding:12px 24px;">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+
+        <!-- BASE DE DATOS -->
+        <div class="card">
+            <div class="db-header">
+                <div class="section-title" style="margin-bottom:0;">Base de Datos — CrediNYD</div>
+                <div class="db-count"><span id="contadorContactos">0</span> / 3,000 registros</div>
+            </div>
+
+            <div class="search-bar">
+                <div class="sf">
+                    <label>Buscar</label>
+                    <input type="text" id="buscador" placeholder="RFC o Nombre..." style="text-transform:uppercase;">
+                </div>
+                <div class="sf" style="max-width:280px;">
+                    <label>Filtrar por Alerta</label>
+                    <select id="filtroAlerta">
+                        <option value="TODOS">-- Todos --</option>
+                        <option value="REFINANCIAMIENTO">Refinanciamiento (10+ cobros)</option>
+                        <option value="COMPRA">Compra de deuda (24+ cobros)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnLimpiar" style="height:38px;">Limpiar</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>RFC</th>
+                            <th>Nombre</th>
+                            <th>Dependencia</th>
+                            <th>Teléfono</th>
+                            <th>Edad</th>
+                            <th>Créditos Activos</th>
+                            <th>Total Desc.</th>
+                            <th>Alertas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── Firebase Config — CrediNYD ──
+const firebaseConfig = {
+    apiKey: "AIzaSyADLTVTCbY3z15r1wYWtUcG0Mf_OmYwyBY",
+    authDomain: "credinyd.firebaseapp.com",
+    projectId: "credinyd",
+    storageBucket: "credinyd.firebasestorage.app",
+    messagingSenderId: "129546518481",
+    appId: "1:129546518481:web:cf14cfb8b6a1bb4ea1aaf0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── Estado global ──
+let contactos = [];
+let rfcOriginalEdicion = null;
+let contadorDescuentos = 0;
+let unsubscribe = null;
+
+// ── Helpers ──
+const $ = id => document.getElementById(id);
+const showLoading = () => { $('loadingOverlay').style.display = 'flex'; }
+const hideLoading = () => { $('loadingOverlay').style.display = 'none'; }
+
+// ── Auth ──
+onAuthStateChanged(auth, user => {
+    if (user) {
+        $('loginScreen').style.display = 'none';
+        $('appScreen').style.display = 'block';
+        $('userEmail').textContent = user.email;
+        iniciarEscuchaTiempoReal();
+        setupUI();
+        hideLoading();
+    } else {
+        $('loginScreen').style.display = 'flex';
+        $('appScreen').style.display = 'none';
+        if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+        hideLoading();
+    }
+});
+
+$('btnLogin').addEventListener('click', async () => {
+    const email = $('loginEmail').value.trim();
+    const pass = $('loginPass').value;
+    const errEl = $('loginError');
+    errEl.style.display = 'none';
+
+    if (!email || !pass) {
+        errEl.style.cssText = 'display:block; background:#fde8e8; color:#b04a4a; border-radius:6px; padding:10px 14px; font-size:0.85rem; margin-bottom:16px;';
+        errEl.textContent = 'Por favor ingresa tu correo y contraseña.';
+        return;
+    }
+
+    showLoading();
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+        hideLoading();
+        errEl.style.cssText = 'display:block; background:#fde8e8; color:#b04a4a; border-radius:6px; padding:10px 14px; font-size:0.85rem; margin-bottom:16px;';
+        errEl.textContent = 'Correo o contraseña incorrectos. Intenta de nuevo.';
+    }
+});
+
+$('loginPass').addEventListener('keypress', e => { if(e.key === 'Enter') $('btnLogin').click(); });
+
+$('btnLogout').addEventListener('click', async () => {
+    cancelarModoEdicion();
+    await signOut(auth);
+});
+
+// ── Firestore en tiempo real ──
+function iniciarEscuchaTiempoReal() {
+    const colRef = collection(db, 'contactos');
+    unsubscribe = onSnapshot(colRef, snapshot => {
+        contactos = snapshot.docs.map(d => d.data());
+        ejecutarFiltrado();
+        $('contadorContactos').textContent = contactos.length;
+    });
+}
+
+async function guardarContactoFirebase(datos) {
+    showLoading();
+    try {
+        await setDoc(doc(db, 'contactos', datos.rfc), datos);
+    } catch(e) {
+        alert('Error al guardar: ' + e.message);
+    }
+    hideLoading();
+}
+
+async function eliminarContactoFirebase(rfc) {
+    showLoading();
+    try {
+        await deleteDoc(doc(db, 'contactos', rfc));
+    } catch(e) {
+        alert('Error al eliminar: ' + e.message);
+    }
+    hideLoading();
+}
+
+// ── Lógica de Quincenas ──
+function calcularQuincenasEfectuadas(fechaDispersiónStr) {
+    if (!fechaDispersiónStr) return 0;
+    const fechaDisp = new Date(fechaDispersiónStr + "T00:00:00");
+    const fechaActual = new Date();
+    if (fechaDisp > fechaActual || isNaN(fechaDisp.getTime())) return 0;
+
+    let cortesTotales = 0;
+    let anio = fechaDisp.getFullYear();
+    let mes = fechaDisp.getMonth();
+    let dia = fechaDisp.getDate();
+    let proximoCorteEsVeintiocho = (dia > 13);
+
+    while (true) {
+        if (!proximoCorteEsVeintiocho) {
+            const corteActual = new Date(anio, mes, 13);
+            if (corteActual > fechaActual) break;
+            if (corteActual >= fechaDisp) cortesTotales++;
+            proximoCorteEsVeintiocho = true;
+        } else {
+            const corteActual = new Date(anio, mes, 28);
+            if (corteActual > fechaActual) break;
+            if (corteActual >= fechaDisp) cortesTotales++;
+            mes++;
+            if (mes > 11) { mes = 0; anio++; }
+            proximoCorteEsVeintiocho = false;
+        }
+    }
+    return Math.max(0, cortesTotales - 4);
+}
+
+// ── UI Setup ──
+function setupUI() {
+    limpiarFormulario();
+
+    $('telefono').addEventListener('input', () => {
+        const val = $('telefono').value.replace(/\D/g, '');
+        if (val.length >= 10) {
+            $('waBtn').href = `https://wa.me/52${val}`;
+            $('waBtn').style.display = 'inline-flex';
+        } else {
+            $('waBtn').style.display = 'none';
+        }
+    });
+
+    ['nacAnio','nacMes','nacDia'].forEach(id => $(id).addEventListener('input', calcularEdad));
+    ['ingAnio','ingMes','ingDia'].forEach(id => $(id).addEventListener('input', calcularAntiguedad));
+    $('btnAgregarDescuento').addEventListener('click', () => { templateDescuento(); calcularTotal(); });
+    $('creditoForm').addEventListener('submit', handleGuardar);
+    $('btnCancelarEdicion').addEventListener('click', cancelarModoEdicion);
+    $('buscador').addEventListener('input', ejecutarFiltrado);
+    $('filtroAlerta').addEventListener('change', ejecutarFiltrado);
+    $('btnLimpiar').addEventListener('click', () => {
+        $('buscador').value = '';
+        $('filtroAlerta').value = 'TODOS';
+        ejecutarFiltrado();
+    });
+}
+
+// ── Formulario ──
+function limpiarFormulario() {
+    $('creditoForm').reset();
+    $('contenedorDescuentos').innerHTML = '';
+    contadorDescuentos = 0;
+    for(let i = 0; i < 3; i++) templateDescuento();
+    $('waBtn').style.display = 'none';
+    $('edadCalculada').textContent = 'Edad: --';
+    $('servicioCalculado').textContent = 'Antigüedad: --';
+    $('totalDescuentos').textContent = '0.00';
+}
+
+function templateDescuento(valNombre='', valTasa='', valDesc=0, valMonto=0, valPlazo='', valDisp='') {
+    contadorDescuentos++;
+    const id = contadorDescuentos;
+    const html = `
+        <div class="descuento-block" id="db_${id}">
+            <h4 class="desc-titulo">Descuento #${id}</h4>
+            <button type="button" class="btn btn-danger btn-sm btn-delete-block" onclick="window._elimDesc(${id})">✕</button>
+            <div class="descuento-grid">
+                <div class="form-group">
+                    <label>Financiera</label>
+                    <input type="text" class="inp-nombre" placeholder="Ej: Credifiel" value="${valNombre}">
+                </div>
+                <div class="form-group">
+                    <label>Tasa (%)</label>
+                    <input type="number" class="inp-tasa" step="0.01" placeholder="2.5" value="${valTasa}">
+                </div>
+                <div class="form-group">
+                    <label>Descuento Quincenal ($)</label>
+                    <input type="number" class="inp-desc" step="0.01" value="${valDesc}" oninput="window._calcTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Monto ($)</label>
+                    <input type="number" class="inp-monto" step="0.01" value="${valMonto}">
+                </div>
+                <div class="form-group">
+                    <label>Plazo (Quincenas)</label>
+                    <input type="number" class="inp-plazo" min="0" value="${valPlazo}">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Dispersión</label>
+                    <input type="date" class="inp-disp" value="${valDisp}">
+                </div>
+            </div>
+        </div>`;
+    $('contenedorDescuentos').insertAdjacentHTML('beforeend', html);
+    reindexar();
+}
+
+window._elimDesc = function(id) {
+    const el = $('db_' + id);
+    if (el) { el.remove(); calcularTotal(); reindexar(); }
+};
+
+window._calcTotal = calcularTotal;
+
+function reindexar() {
+    let i = 1;
+    document.querySelectorAll('.desc-titulo').forEach(h => { h.textContent = `Descuento #${i++}`; });
+}
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll('.inp-desc').forEach(inp => { total += parseFloat(inp.value) || 0; });
+    $('totalDescuentos').textContent = total.toFixed(2);
+    return total;
+}
+
+function calcularEdad() {
+    const a = parseInt($('nacAnio').value), m = parseInt($('nacMes').value) - 1, d = parseInt($('nacDia').value);
+    if (a && m >= 0 && d) {
+        const hoy = new Date(), nac = new Date(a, m, d);
+        let edad = hoy.getFullYear() - nac.getFullYear();
+        const md = hoy.getMonth() - nac.getMonth();
+        if (md < 0 || (md === 0 && hoy.getDate() < nac.getDate())) edad--;
+        $('edadCalculada').textContent = `Edad: ${edad} años`;
+        return edad;
+    }
+    $('edadCalculada').textContent = 'Edad: --';
+}
+
+function calcularAntiguedad() {
+    const a = parseInt($('ingAnio').value), m = parseInt($('ingMes').value) - 1, d = parseInt($('ingDia').value);
+    if (a && m >= 0 && d) {
+        const hoy = new Date(), ing = new Date(a, m, d);
+        let anos = hoy.getFullYear() - ing.getFullYear();
+        let meses = hoy.getMonth() - ing.getMonth();
+        let dias = hoy.getDate() - ing.getDate();
+        if (dias < 0) { meses--; dias += new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate(); }
+        if (meses < 0) { anos--; meses += 12; }
+        $('servicioCalculado').textContent = `Antigüedad: ${anos}a ${meses}m ${dias}d`;
+    } else {
+        $('servicioCalculado').textContent = 'Antigüedad: --';
+    }
+}
+
+async function handleGuardar(e) {
+    e.preventDefault();
+    const inputRfc = $('rfc').value.toUpperCase().trim();
+
+    if (!rfcOriginalEdicion && contactos.length >= 3000) {
+        alert('Has alcanzado el límite de 3,000 contactos.'); return;
+    }
+
+    const descuentos = [];
+    document.querySelectorAll('.descuento-block').forEach(block => {
+        descuentos.push({
+            nombreFinanciera: block.querySelector('.inp-nombre').value.trim() || 'Genérica',
+            tasaInteres: block.querySelector('.inp-tasa').value || '0',
+            descuento: block.querySelector('.inp-desc').value || '0',
+            monto: block.querySelector('.inp-monto').value || '0',
+            plazo: block.querySelector('.inp-plazo').value || '0',
+            dispersion: block.querySelector('.inp-disp').value || ''
+        });
+    });
+
+    const datos = {
+        dependencia: $('dependencia').value,
+        capacidad: $('capacidad').value,
+        promotor: $('promotor').value,
+        numEmpleado: $('numEmpleado').value,
+        nombre: $('nombre').value,
+        telefono: $('telefono').value,
+        rfc: inputRfc,
+        curp: $('curp').value.toUpperCase(),
+        edad: $('edadCalculada').textContent,
+        servicio: $('servicioCalculado').textContent,
+        fechas: {
+            nacAnio: $('nacAnio').value, nacMes: $('nacMes').value, nacDia: $('nacDia').value,
+            ingAnio: $('ingAnio').value, ingMes: $('ingMes').value, ingDia: $('ingDia').value,
+        },
+        descuentos,
+        totalDescuento: calcularTotal(),
+        actualizadoEn: new Date().toISOString()
+    };
+
+    const existe = contactos.find(c => c.rfc === inputRfc);
+
+    if (rfcOriginalEdicion) {
+        await guardarContactoFirebase(datos);
+        alert('Contacto actualizado.');
+        cancelarModoEdicion();
+    } else {
+        if (existe) {
+            if (!confirm(`El RFC ${inputRfc} ya existe. ¿Deseas sobreescribir sus datos?`)) return;
+        }
+        await guardarContactoFirebase(datos);
+        alert('Contacto guardado.');
+        cancelarModoEdicion();
+    }
+}
+
+// ── Editar / Eliminar ──
+window.seleccionarParaEditar = function(rfc) {
+    const c = contactos.find(x => x.rfc === rfc);
+    if (!c) return;
+
+    rfcOriginalEdicion = rfc;
+    $('editBanner').style.display = 'flex';
+    $('rfcEditando').textContent = rfc;
+    $('btnGuardar').textContent = 'Actualizar Contacto';
+    $('btnCancelarEdicion').style.display = 'inline-flex';
+
+    $('dependencia').value = c.dependencia;
+    $('capacidad').value = c.capacidad;
+    $('promotor').value = c.promotor;
+    $('numEmpleado').value = c.numEmpleado;
+    $('nombre').value = c.nombre;
+    $('telefono').value = c.telefono;
+    $('rfc').value = c.rfc;
+    $('curp').value = c.curp;
+
+    if (c.fechas) {
+        $('nacAnio').value = c.fechas.nacAnio || '';
+        $('nacMes').value = c.fechas.nacMes || '';
+        $('nacDia').value = c.fechas.nacDia || '';
+        $('ingAnio').value = c.fechas.ingAnio || '';
+        $('ingMes').value = c.fechas.ingMes || '';
+        $('ingDia').value = c.fechas.ingDia || '';
+    }
+
+    calcularEdad(); calcularAntiguedad();
+
+    if (c.telefono && c.telefono.length >= 10) {
+        $('waBtn').href = `https://wa.me/52${c.telefono}`;
+        $('waBtn').style.display = 'inline-flex';
+    }
+
+    $('contenedorDescuentos').innerHTML = '';
+    contadorDescuentos = 0;
+
+    if (c.descuentos && c.descuentos.length > 0) {
+        c.descuentos.forEach(d => templateDescuento(d.nombreFinanciera, d.tasaInteres, d.descuento, d.monto, d.plazo, d.dispersion));
+    } else {
+        for(let i=0;i<3;i++) templateDescuento();
+    }
+    calcularTotal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.eliminarContacto = async function(rfc) {
+    if (!confirm(`¿Seguro que deseas eliminar al cliente con RFC ${rfc}?`)) return;
+    if (rfcOriginalEdicion === rfc) cancelarModoEdicion();
+    await eliminarContactoFirebase(rfc);
+};
+
+function cancelarModoEdicion() {
+    rfcOriginalEdicion = null;
+    $('editBanner').style.display = 'none';
+    $('btnGuardar').textContent = 'Guardar Contacto';
+    $('btnCancelarEdicion').style.display = 'none';
+    limpiarFormulario();
+}
+
+// ── Tabla ──
+function ejecutarFiltrado() {
+    const texto = $('buscador').value.toUpperCase().trim();
+    const alerta = $('filtroAlerta').value;
+    renderTabla(texto, alerta);
+}
+
+function renderTabla(filtroTexto = '', filtroAlerta = 'TODOS') {
+    const tbody = $('tablaBody');
+    tbody.innerHTML = '';
+    $('contadorContactos').textContent = contactos.length;
+
+    let mostrados = 0;
+
+    contactos.forEach(c => {
+        if (filtroTexto && !c.rfc.includes(filtroTexto) && !c.nombre.toUpperCase().includes(filtroTexto)) return;
+
+        let tieneRefi = false, tieneCompra = false;
+        let htmlCreditos = '<ul class="credit-list">';
+
+        if (c.descuentos && c.descuentos.length > 0) {
+            c.descuentos.forEach((d) => {
+                const qHechas = calcularQuincenasEfectuadas(d.dispersion);
+                const plazo = parseInt(d.plazo) || 0;
+                const qRestan = Math.max(0, plazo - qHechas);
+                htmlCreditos += `<li><b>${d.nombreFinanciera}:</b> ${d.tasaInteres}% · Restan <b>${qRestan}</b> qnas (${qHechas}/${plazo})</li>`;
+                if (qHechas >= 24) tieneCompra = true;
+                else if (qHechas >= 10) tieneRefi = true;
+            });
+        } else {
+            htmlCreditos += '<li style="color:#94a3b8;">Sin créditos</li>';
+        }
+        htmlCreditos += '</ul>';
+
+        if (filtroAlerta === 'REFINANCIAMIENTO' && !tieneRefi) return;
+        if (filtroAlerta === 'COMPRA' && !tieneCompra) return;
+
+        mostrados++;
+        const total = typeof c.totalDescuento === 'number' ? c.totalDescuento : parseFloat(c.totalDescuento) || 0;
+        const edadTxt = c.edad ? c.edad.replace('Edad: ', '') : '--';
+
+        let badges = '';
+        if (tieneCompra) badges += '<span class="badge badge-compra">Compra de deuda</span>';
+        if (tieneRefi) badges += '<span class="badge badge-refi">Refinanciamiento</span>';
+        if (!tieneCompra && !tieneRefi) badges = '<span class="badge-none">Sin oportunidades</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-family:var(--mono); font-weight:600; font-size:0.8rem;">${c.rfc}</td>
+            <td style="font-weight:600;">${c.nombre}</td>
+            <td>${c.dependencia}</td>
+            <td><a href="https://wa.me/52${c.telefono}" target="_blank" class="btn btn-wa btn-sm">WA</a></td>
+            <td>${edadTxt}</td>
+            <td>${htmlCreditos}</td>
+            <td style="font-family:var(--mono); font-weight:700; color:var(--accent);">$${total.toFixed(2)}</td>
+            <td>${badges}</td>
+            <td>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="seleccionarParaEditar('${c.rfc}')">Editar</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarContacto('${c.rfc}')">Eliminar</button>
+                </div>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+
+    if (mostrados === 0) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+            <strong>Sin resultados</strong>
+            <p>No se encontraron contactos con los filtros actuales.</p>
+        </div></td></tr>`;
+    }
+}
+</script>
+</body>
+</html>
